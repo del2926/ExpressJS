@@ -26,3 +26,20 @@
 .cart-item h2 {
   color: blueviolet;
 }
+
+.order-btn {
+  display: inline-block;
+  padding: 0.25rem 1rem;
+  text-decoration: none;
+  font: inherit;
+  font-weight: bold;
+  border: 1px solid #000;
+  background-color: coral;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.order-btn:hover {
+  background-color: chocolate;
+  color: white;
+}
