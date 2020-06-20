@@ -4,19 +4,19 @@ const express = require("express");
 
 const bodyParser = require("body-parser");
 
-const expressHbs = require("express-handlebars");
+const mongoose = require("mongoose");
+
+// const expressHbs = require("express-handlebars");
 
 const errorController = require("./controllers/error");
 
-const mongoConnect = require("./util/database").mongoConnect;
+// const mongoConnect = require("./util/database").mongoConnect;
 
 const User = require("./models/user");
 
 // const sequelize = require("./util/database");
 
 // const Product = require("./models/product");
-
-// const User = require("./models/user");
 
 // const Cart = require("./models/cart");
 
@@ -55,9 +55,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
-  User.findByPk("5eeb8fb58140cdaedd76aeb4")
+  User.findById("5eed590aec56651ea888a4cd")
     .then((user) => {
-      req.user = new User(user.name, user.email, user.cart, user._id);
+      req.user = user;
       next();
     })
     .catch((err) => console.log(err));
@@ -78,9 +78,32 @@ app.use(shopRoutes);
 
 app.use(errorController.getErrorPage);
 
-mongoConnect(() => {
-  app.listen(3000);
-});
+mongoose
+  .connect(
+    "mongodb+srv://Delilah:sitiDel2926@cluster0-9grtz.mongodb.net/shop?retryWrites=true&w=majority"
+  )
+  .then((result) => {
+    User.findOne().then((user) => {
+      if (!user) {
+        const user = new User({
+          name: "Delilah",
+          email: "delilah@gmail.com",
+          cart: {
+            items: [],
+          },
+        });
+        user.save();
+      }
+    });
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+// mongoConnect(() => {
+//   app.listen(3000);
+// });
 
 // res.status(404).send("<h1>Page Not Found</h1>");
 
