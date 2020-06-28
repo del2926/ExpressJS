@@ -24,6 +24,16 @@ form {
   text-align: center;
 }
 
+.centered a {
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.centered a:hover {
+  color: blue;
+}
+
 hr {
   height: 3px;
   background: black;
@@ -42,8 +52,10 @@ hr {
 
 .main-nav {
   height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .main-nav ul {
@@ -58,15 +70,22 @@ hr {
   margin: 0 1rem;
 }
 
-.main-nav ul li a {
+.main-nav ul li a,
+.main-nav ul li button {
+  font: inherit;
+  background: transparent;
+  border: none;
   text-decoration: none;
   font-weight: bold;
   color: rgb(104, 4, 134);
+  cursor: pointer;
 }
 
 .main-nav ul li a:hover,
 .main-nav ul li a:active,
-.main-nav ul li a.active {
+.main-nav ul li a.active,
+.main-nav ul li button:hover,
+.main-nav ul li button:active {
   color: #fff;
 }
 
@@ -101,16 +120,23 @@ hr {
   padding: 0;
 }
 
-.mobile-nav__item a {
+.mobile-nav__item a,
+.mobile-nav__item button {
+  font: inherit;
   text-decoration: none;
   color: black;
   font-size: 1.5rem;
   padding: 0.5rem 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .mobile-nav__item a:active,
 .mobile-nav__item a:hover,
-.mobile-nav__item a.active {
+.mobile-nav__item a.active,
+.mobile-nav__item button:hover,
+.mobile-nav__item button:active {
   background: #00695c;
   color: white;
   border-radius: 3px;
@@ -207,12 +233,26 @@ hr {
   color: white;
 }
 
+.user-error-message {
+  margin: auto;
+  border: 3px solid red;
+  padding: 0.5rem;
+  border-radius: 3px;
+  background-color: black;
+  color: yellow;
+  text-align: center;
+}
+
 @media (min-width: 768px) {
-  .main-header__nav {
+  .main-nav {
     display: flex;
   }
 
   #side-menu-toggle {
     display: none;
+  }
+
+  .user-error-message {
+    width: 30rem;
   }
 }

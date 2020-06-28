@@ -25,3 +25,8 @@
 .form-control textarea:focus {
   outline-color: rgb(0, 247, 164);
 }
+
+.form-control input.invalid,
+.form-control textarea.invalid {
+  border-color: red;
+}

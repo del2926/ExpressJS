@@ -6,137 +6,90 @@ const bodyParser = require("body-parser");
 
 const mongoose = require("mongoose");
 
-// const expressHbs = require("express-handlebars");
+const session = require("express-session");
+
+const MongoDBStore = require("connect-mongodb-session")(session);
+
+const csrf = require("csurf");
+
+const flash = require("connect-flash");
 
 const errorController = require("./controllers/error");
 
-// const mongoConnect = require("./util/database").mongoConnect;
-
 const User = require("./models/user");
 
-// const sequelize = require("./util/database");
-
-// const Product = require("./models/product");
-
-// const Cart = require("./models/cart");
-
-// const CartItem = require("./models/cart-item");
-
-// const Order = require("./models/order");
-
-// const OrderItem = require("./models/order-item");
+const MONGODB_URI =
+  "mongodb+srv://Delilah:sitiDel2926@cluster0-9grtz.mongodb.net/shop?retryWrites=true&w=majority";
 
 const app = express();
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: "sessions",
+});
 
-// app.engine(
-//   "handlebars",
-//   expressHbs({
-//     layoutsDir: "views/layouts/",
-//     defaultLayout: "main-layout",
-//     extname: "handlebars",
-//   })
-// );
+const csrfProtection = csrf();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
-
-// db.execute("SELECT * FROM products")
-//   .then((result) => {
-//     console.log(result[0], result[1]);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });
+const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
+
+app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
-  User.findById("5eed590aec56651ea888a4cd")
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((user) => {
+      if (!user) {
+        return next();
+      }
       req.user = user;
       next();
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new Error(err);
+    });
+});
+
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
-// app.use((req, res, next) => {
-//   console.log("In the middleware!");
-//   next(); // Allows the request to continue to the next middleware in line
-// });
+app.get("/500", errorController.get500);
 
-// app.use("/", (req, res, next) => {
-//   console.log("This always runs!");
-//   next();
-// });
+app.use(errorController.get404);
 
-app.use(errorController.getErrorPage);
+app.use((error, req, res, next) => {
+  res.redirect("/500");
+});
 
 mongoose
-  .connect(
-    "mongodb+srv://Delilah:sitiDel2926@cluster0-9grtz.mongodb.net/shop?retryWrites=true&w=majority"
-  )
+  .connect(MONGODB_URI)
   .then((result) => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "Delilah",
-          email: "delilah@gmail.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
     app.listen(3000);
   })
   .catch((err) => {
     console.log(err);
   });
-
-// mongoConnect(() => {
-//   app.listen(3000);
-// });
-
-// res.status(404).send("<h1>Page Not Found</h1>");
-
-// Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
-// User.hasMany(Product);
-// User.hasOne(Cart);
-// Cart.belongsTo(User);
-// Cart.belongsToMany(Product, { through: CartItem });
-// Product.belongsToMany(Cart, { through: CartItem });
-// Order.belongsTo(User);
-// User.hasMany(Order);
-// Order.belongsToMany(Product, { through: OrderItem });
-
-// sequelize
-//   // .sync({ force: true })
-//   .sync()
-//   .then((result) => {
-//     return User.findByPk(1);
-//     // console.log(result);
-//   })
-//   .then((user) => {
-//     if (!user) {
-//       return User.create({ name: "Delilah", email: "delilah@gmail.com" });
-//     }
-//     return user;
-//   })
-//   .then((user) => {
-//     // console.log(user);
-//     return user.createCart();
-//   })
-//   .then((cart) => {
-//     app.listen(3000);
-//   })
-//   .catch((err) => {
-//     console.log(err);
-//   });

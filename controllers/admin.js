@@ -1,3 +1,5 @@
+const { validationResult } = require("express-validator");
+
 const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
@@ -5,6 +7,9 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editing: false,
+    hasError: false,
+    errorMessage: null,
+    validationErrors: [],
   });
 };
 
@@ -13,6 +18,23 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+    });
+  }
   const product = new Product({
     title: title,
     price: price,
@@ -20,13 +42,6 @@ exports.postAddProduct = (req, res, next) => {
     imageUrl: imageUrl,
     userId: req.user,
   });
-  // req.user
-  //   .createProduct({
-  //     title: title,
-  //     price: price,
-  //     imageUrl: imageUrl,
-  //     description: description,
-  //   })
   product
     .save()
     .then((result) => {
@@ -35,17 +50,26 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
+      // return res.status(500).render("admin/edit-product", {
+      //   pageTitle: "Add Product",
+      //   path: "/admin/add-product",
+      //   editing: false,
+      //   hasError: true,
+      //   product: {
+      //     title: title,
+      //     imageUrl: imageUrl,
+      //     price: price,
+      //     description: description,
+      //   },
+      //   errorMessage: "Database operation failed, please try again.",
+      //   validationErrors: [],
+      // });
+      // res.redirect("/500");
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
-// const product = new Product(null, title, imageUrl, price, description);
-// product
-//   .save()
-//   .then(() => {
-//     res.redirect("/");
-//   })
-//   .catch((err) => console.log(err));
-// products.push({ title: req.body.title });
 
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
@@ -53,12 +77,8 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
   const prodId = req.params.productId;
-  // req.user
-  //   .getProducts({ where: { id: prodId } })
-  // Product.findByPk(prodId)
   Product.findById(prodId)
     .then((product) => {
-      // const product = products[0];
       if (!product) {
         return res.redirect("/");
       }
@@ -67,9 +87,16 @@ exports.getEditProduct = (req, res, next) => {
         path: "/admin/edit-product",
         editing: editMode,
         product: product,
+        hasError: false,
+        errorMessage: null,
+        validationErrors: [],
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -78,37 +105,47 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedPrice = req.body.price;
   const updatedDescription = req.body.description;
-  // Product.findByPk(prodId)
-  //   .then((productData) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Edit Product",
+      path: "/admin/edit-product",
+      editing: true,
+      hasError: true,
+      product: {
+        title: updatedTitle,
+        imageUrl: updatedImageUrl,
+        price: updatedPrice,
+        description: updatedDescription,
+        _id: prodId,
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+    });
+  }
   Product.findById(prodId)
     .then((product) => {
+      if (product.userId.toString() !== req.user._id.toString()) {
+        return res.redirect("/");
+      }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDescription;
       product.imageUrl = updatedImageUrl;
-      return product.save();
+      return product.save().then((result) => {
+        console.log("UPDATED PRODUCT!");
+        res.redirect("/admin/products");
+      });
     })
-    .then((result) => {
-      console.log("UPDATED PRODUCT!");
-      res.redirect("/admin/products");
-    })
-    .catch((err) => console.log(err));
-  // const updatedProduct = new Product(
-  //   prodId,
-  //   updatedTitle,
-  //   updatedImageUrl,
-  //   updatedPrice,
-  //   updatedDescription
-  // );
-  // updatedProduct.save();
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducts = (req, res, next) => {
-  // req.user
-  //   .getProducts()
-  Product.find()
-    // .select("title price -_id")
-    // .populate("userId", "name")
+  Product.find({ userId: req.user._id })
     .then((products) => {
       console.log(products);
       res.render("admin/products", {
@@ -118,27 +155,22 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
-  // Product.fetchAll((products) => {
-  //   res.render("admin/products", {
-  //     prods: products,
-  //     pageTitle: "Admin Products",
-  //     path: "/admin/products",
-  //   });
-  // });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  // Product.findByPk(prodId)
-  //   .then((product) => {
-  //     return product.destroy();
-  //   })
-  Product.findByIdAndDelete(prodId)
+  Product.deleteOne({ _id: prodId, userId: req.user._id })
     .then(() => {
       console.log("DESTROYED PRODUCT!");
       res.redirect("/admin/products");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
