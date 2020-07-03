@@ -243,6 +243,26 @@ hr {
   text-align: center;
 }
 
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: rgb(69, 6, 88);
+  padding: 0.5rem;
+  border: 1px solid rgb(69, 6, 88);
+  margin: 0 1rem;
+}
+
+.pagination a:hover,
+.pagination a:active,
+.pagination a.active {
+  background: rgb(69, 6, 88);
+  color: #fff;
+}
+
 @media (min-width: 768px) {
   .main-nav {
     display: flex;

@@ -24,7 +24,11 @@
 }
 
 .cart-item h2 {
-  color: blueviolet;
+  color: crimson;
+}
+
+.cart-item a:hover {
+  color: blue;
 }
 
 .order-btn {
@@ -35,11 +39,11 @@
   font-weight: bold;
   border: 1px solid #000;
   background-color: coral;
+  color: black;
   border-radius: 3px;
   cursor: pointer;
 }
 
 .order-btn:hover {
-  background-color: chocolate;
-  color: white;
+  background-color: white;
 }
