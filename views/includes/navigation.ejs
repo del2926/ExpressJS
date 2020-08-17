@@ -2,6 +2,7 @@
 <header class="main-header">
   <button id="side-menu-toggle">Menu</button>
   <nav class="main-nav">
+    <img src="/logo.png" />
     <ul>
       <li>
         <a class="<%= path === '/' ? 'active' : '' %>" href="/">Shop</a>
@@ -41,13 +42,34 @@
     <ul>
       <% if (!isAuthenticated) { %>
       <li>
-        <a class="<%= path === '/login' ? 'active' : '' %>" href="/login"
-          >Log In</a
+        <a
+          class="<%= path === '/cust-login' ? 'active' : '' %>"
+          href="/cust-login"
+          >Login</a
         >
       </li>
+      <li class="main-header__item">|</li>
       <li class="main-header__item">
-        <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup"
-          >Sign Up</a
+        <a
+          class="<%= path === '/cust-register' ? 'active' : '' %>"
+          href="/cust-register"
+          >Register</a
+        >
+      </li>
+      <li class="main-header__item">|</li>
+      <li class="main-header__item">
+        <a
+          class="<%= path === '/sme-register' ? 'active' : '' %>"
+          href="/sme-register"
+          >SME Register</a
+        >
+      </li>
+      <li class="main-header__item">|</li>
+      <li class="main-header__item">
+        <a
+          class="<%= path === '/sme-login' ? 'active' : '' %>"
+          href="/sme-login"
+          >SME Login</a
         >
       </li>
       <% } else { %>
@@ -103,7 +125,7 @@
     </li>
     <li class="mobile-nav__item">
       <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup"
-        >Signup</a
+        >Register</a
       >
     </li>
     <% } else { %>

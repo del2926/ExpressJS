@@ -20,7 +20,9 @@ const { v4: uuidv4 } = require("uuid");
 
 const errorController = require("./controllers/error");
 
-const User = require("./models/user");
+const Sme = require("./models/sme");
+
+const Cust = require("./models/customer");
 
 const MONGODB_URI =
   "mongodb+srv://Delilah:sitiDel2926@cluster0-9grtz.mongodb.net/shop?retryWrites=true&w=majority";
@@ -80,15 +82,32 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use((req, res, next) => {
-  if (!req.session.user) {
+  if (!req.session.sme) {
     return next();
   }
-  User.findById(req.session.user._id)
-    .then((user) => {
-      if (!user) {
+  Sme.findById(req.session.sme._id)
+    .then((sme) => {
+      if (!sme) {
         return next();
       }
-      req.user = user;
+      req.sme = sme;
+      next();
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
+});
+
+app.use((req, res, next) => {
+  if (!req.session.cust) {
+    return next();
+  }
+  Cust.findById(req.session.cust._id)
+    .then((cust) => {
+      if (!cust) {
+        return next();
+      }
+      req.cust = cust;
       next();
     })
     .catch((err) => {

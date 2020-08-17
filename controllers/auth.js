@@ -4,7 +4,9 @@ const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 const { validationResult } = require("express-validator");
 
-const User = require("../models/user");
+const Sme = require("../models/sme");
+
+const Cust = require("../models/customer");
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -15,16 +17,35 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-exports.getLogin = (req, res, next) => {
+exports.getSmeLogin = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
     message = message[0];
   } else {
     message = null;
   }
-  res.render("auth/login", {
-    path: "/login",
-    pageTitle: "Login Page",
+  res.render("auth/sme-login", {
+    path: "/sme-login",
+    pageTitle: "Login",
+    errorMessage: message,
+    oldInput: {
+      roc: "",
+      password: "",
+    },
+    validationErrors: [],
+  });
+};
+
+exports.getCustLogin = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("auth/cust-login", {
+    path: "/cust-login",
+    pageTitle: "Login",
     errorMessage: message,
     oldInput: {
       email: "",
@@ -34,18 +55,23 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.getSignup = (req, res, next) => {
+exports.getSmeRegister = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
     message = message[0];
   } else {
     message = null;
   }
-  res.render("auth/signup", {
-    path: "/signup",
-    pageTitle: "Sign-Up Page",
+  res.render("auth/sme-register", {
+    path: "/sme-register",
+    pageTitle: "SME Registration",
     errorMessage: message,
     oldInput: {
+      roc: "",
+      name: "",
+      owner: "",
+      phone: "",
+      address: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -54,15 +80,101 @@ exports.getSignup = (req, res, next) => {
   });
 };
 
-exports.postLogin = (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
+exports.getCustRegister = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("auth/cust-register", {
+    path: "/cust-register",
+    pageTitle: "Customer Registration",
+    errorMessage: message,
+    oldInput: {
+      fname: "",
+      lname: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationErrors: [],
+  });
+};
 
+exports.postSmeLogin = (req, res, next) => {
+  const roc = req.body.roc;
+  const password = req.body.password;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).render("auth/login", {
-      path: "/login",
-      pageTitle: "Login Page",
+    return res.status(422).render("auth/sme-login", {
+      path: "/sme-login",
+      pageTitle: "Login",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        roc: roc,
+        password: password,
+      },
+      validationErrors: errors.array(),
+    });
+  }
+
+  Sme.findOne({ roc: roc })
+    .then((sme) => {
+      if (!sme) {
+        return res.status(422).render("auth/sme-login", {
+          path: "/sme-login",
+          pageTitle: "Login",
+          errorMessage: "Invalid ROC Number!",
+          oldInput: {
+            roc: roc,
+            password: password,
+          },
+          validationErrors: [],
+        });
+      }
+      bcrypt
+        .compare(password, sme.password)
+        .then((doMatch) => {
+          if (doMatch) {
+            req.session.isLoggedIn = true;
+            req.session.sme = sme;
+            return req.session.save((err) => {
+              console.log(err);
+              res.redirect("/");
+            });
+          }
+          return res.status(422).render("auth/sme-login", {
+            path: "/sme-login",
+            pageTitle: "Login",
+            errorMessage: "Invalid Password!",
+            oldInput: {
+              roc: roc,
+              password: password,
+            },
+            validationErrors: [],
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.redirect("/sme-login");
+        });
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.postCustLogin = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/cust-login", {
+      path: "/cust-login",
+      pageTitle: "Login",
       errorMessage: errors.array()[0].msg,
       oldInput: {
         email: email,
@@ -72,11 +184,11 @@ exports.postLogin = (req, res, next) => {
     });
   }
 
-  User.findOne({ email: email })
-    .then((user) => {
-      if (!user) {
-        return res.status(422).render("auth/login", {
-          path: "/login",
+  Cust.findOne({ email: email })
+    .then((cust) => {
+      if (!cust) {
+        return res.status(422).render("auth/cust-login", {
+          path: "/cust-login",
           pageTitle: "Login",
           errorMessage: "Invalid Email!",
           oldInput: {
@@ -87,18 +199,18 @@ exports.postLogin = (req, res, next) => {
         });
       }
       bcrypt
-        .compare(password, user.password)
+        .compare(password, cust.password)
         .then((doMatch) => {
           if (doMatch) {
             req.session.isLoggedIn = true;
-            req.session.user = user;
+            req.session.cust = cust;
             return req.session.save((err) => {
               console.log(err);
               res.redirect("/");
             });
           }
-          return res.status(422).render("auth/login", {
-            path: "/login",
+          return res.status(422).render("auth/cust-login", {
+            path: "/cust-login",
             pageTitle: "Login",
             errorMessage: "Invalid Password!",
             oldInput: {
@@ -110,7 +222,7 @@ exports.postLogin = (req, res, next) => {
         })
         .catch((err) => {
           console.log(err);
-          res.redirect("/login");
+          res.redirect("/cust-login");
         });
     })
     .catch((err) => {
@@ -120,17 +232,27 @@ exports.postLogin = (req, res, next) => {
     });
 };
 
-exports.postSignup = (req, res, next) => {
+exports.postSmeRegister = (req, res, next) => {
+  const roc = req.body.roc;
+  const name = req.body.name;
+  const owner = req.body.owner;
+  const phone = req.body.phone;
+  const address = req.body.address;
   const email = req.body.email;
   const password = req.body.password;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors.array());
-    return res.status(422).render("auth/signup", {
-      path: "/signup",
-      pageTitle: "Sign-Up Page",
+    return res.status(422).render("auth/sme-register", {
+      path: "/sme-register",
+      pageTitle: "SME Registration",
       errorMessage: errors.array()[0].msg,
       oldInput: {
+        roc: roc,
+        name: name,
+        owner: owner,
+        phone: phone,
+        address: address,
         email: email,
         password: password,
         confirmPassword: req.body.confirmPassword,
@@ -141,20 +263,75 @@ exports.postSignup = (req, res, next) => {
   bcrypt
     .hash(password, 12)
     .then((hashedPassword) => {
-      const user = new User({
+      const sme = new Sme({
+        roc: roc,
+        name: name,
+        owner: owner,
+        phone: phone,
+        address: address,
         email: email,
         password: hashedPassword,
         cart: { items: [] },
       });
-      return user.save();
+      return sme.save();
     })
     .then((result) => {
       res.redirect("/login");
       return transporter.sendMail({
         to: email,
         from: "delilah.azahari@gmail.com",
-        subject: "Sign Up is Successful",
-        html: "<h1>You are successfully signed up!</h1>",
+        subject: "AI Snap Registration",
+        html: "<h1>You are successfully registered!</h1>",
+      });
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.postCustRegister = (req, res, next) => {
+  const fname = req.body.fname;
+  const lname = req.body.lname;
+  const email = req.body.email;
+  const password = req.body.password;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("auth/cust-register", {
+      path: "/cust-register",
+      pageTitle: "Customer Registration",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        fname: fname,
+        lname: lname,
+        email: email,
+        password: password,
+        confirmPassword: req.body.confirmPassword,
+      },
+      validationErrors: errors.array(),
+    });
+  }
+  bcrypt
+    .hash(password, 12)
+    .then((hashedPassword) => {
+      const cust = new Cust({
+        fname: fname,
+        lname: lname,
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] },
+      });
+      return cust.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
+      return transporter.sendMail({
+        to: email,
+        from: "delilah.azahari@gmail.com",
+        subject: "AI Snap Registration",
+        html: "<h1>You are successfully registered!</h1>",
       });
     })
     .catch((err) => {
@@ -192,15 +369,15 @@ exports.postReset = (req, res, next) => {
       return res.redirect("/reset");
     }
     const token = buffer.toString("hex");
-    User.findOne({ email: req.body.email })
-      .then((user) => {
-        if (!user) {
+    Sme.findOne({ email: req.body.email })
+      .then((sme) => {
+        if (!sme) {
           req.flash("error", "No account with that email found!");
           return res.redirect("/reset");
         }
-        user.resetToken = token;
-        user.resetTokenExpiration = Date.now() + 3600000;
-        return user.save();
+        sme.resetToken = token;
+        sme.resetTokenExpiration = Date.now() + 3600000;
+        return sme.save();
       })
       .then((result) => {
         res.redirect("/");
@@ -224,8 +401,8 @@ exports.postReset = (req, res, next) => {
 
 exports.getNewPassword = (req, res, next) => {
   const token = req.params.token;
-  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
-    .then((user) => {
+  Sme.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+    .then((sme) => {
       let message = req.flash("error");
       if (message.length > 0) {
         message = message[0];
@@ -236,7 +413,7 @@ exports.getNewPassword = (req, res, next) => {
         path: "/new-password",
         pageTitle: "New Password",
         errorMessage: message,
-        userId: user._id.toString(),
+        smeId: sme._id.toString(),
         passwordToken: token,
       });
     })
@@ -249,24 +426,24 @@ exports.getNewPassword = (req, res, next) => {
 
 exports.postNewPassword = (req, res, next) => {
   const newPassword = req.body.password;
-  const userId = req.body.userId;
+  const smeId = req.body.smeId;
   const passwordToken = req.body.passwordToken;
-  let resetUser;
+  let resetSme;
 
-  User.findOne({
+  Sme.findOne({
     resetToken: passwordToken,
     resetTokenExpiration: { $gt: Date.now() },
-    _id: userId,
+    _id: smeId,
   })
-    .then((user) => {
-      resetUser = user;
+    .then((sme) => {
+      resetSme = sme;
       return bcrypt.hash(newPassword, 12);
     })
     .then((hashedPassword) => {
-      resetUser.password = hashedPassword;
-      resetUser.resetToken = undefined;
-      resetUser.resetTokenExpiration = undefined;
-      return resetUser.save();
+      resetSme.password = hashedPassword;
+      resetSme.resetToken = undefined;
+      resetSme.resetTokenExpiration = undefined;
+      return resetSme.save();
     })
     .then((result) => {
       res.redirect("/login");

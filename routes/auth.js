@@ -4,42 +4,56 @@ const { check, body } = require("express-validator");
 
 const authController = require("../controllers/auth");
 
-const User = require("../models/user");
+const Sme = require("../models/sme");
+
+const Cust = require("../models/customer");
 
 const router = express.Router();
 
-router.get("/login", authController.getLogin);
+router.get("/sme-login", authController.getSmeLogin);
 
-router.get("/signup", authController.getSignup);
+router.get("/cust-login", authController.getCustLogin);
+
+router.get("/sme-register", authController.getSmeRegister);
+
+router.get("/cust-register", authController.getCustRegister);
 
 router.post(
-  "/login",
+  "/sme-login",
   [
-    body("email")
-      .isEmail()
-      .withMessage("Please enter a valid email.")
-      .normalizeEmail(),
     body("password", "Invalid Password!")
       .isLength({ min: 6 })
       .isAlphanumeric()
       .trim(),
   ],
-  authController.postLogin
+  authController.postSmeLogin
 );
 
 router.post(
-  "/signup",
+  "/cust-login",
+  [
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email.")
+      .normalizeEmail(),
+
+    body("password", "Invalid Password!")
+      .isLength({ min: 6 })
+      .isAlphanumeric()
+      .trim(),
+  ],
+  authController.postCustLogin
+);
+
+router.post(
+  "/sme-register",
   [
     check("email")
       .isEmail()
       .withMessage("Please enter a valid email.")
       .custom((value, { req }) => {
-        // if (value === "test2@test.com") {
-        //   throw new Error("This email address is forbidden!");
-        // }
-        // return true;
-        return User.findOne({ email: value }).then((userDoc) => {
-          if (userDoc) {
+        return Sme.findOne({ email: value }).then((smeDoc) => {
+          if (smeDoc) {
             return Promise.reject("E-Mail already exists!");
           }
         });
@@ -61,7 +75,40 @@ router.post(
         return true;
       }),
   ],
-  authController.postSignup
+  authController.postSmeRegister
+);
+
+router.post(
+  "/cust-register",
+  [
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email.")
+      .custom((value, { req }) => {
+        return Cust.findOne({ email: value }).then((custDoc) => {
+          if (custDoc) {
+            return Promise.reject("E-Mail already exists!");
+          }
+        });
+      })
+      .normalizeEmail(),
+    body(
+      "password",
+      "Please enter a password with only letters and numbers and at least 6 characters."
+    )
+      .isLength({ min: 6 })
+      .isAlphanumeric()
+      .trim(),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("Password does not match!");
+        }
+        return true;
+      }),
+  ],
+  authController.postCustRegister
 );
 
 router.post("/logout", authController.postLogout);

@@ -1,0 +1,90 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body>
+   <%- include('../includes/navigation.ejs') %>
+
+    <main>
+        <% if (errorMessage) { %>
+            <div class="user-error-message"><%= errorMessage %></div>
+        <% } %>
+        <form class="register-form" action="/sme-register" method="POST" novalidate>
+            <div class="form-control">
+                <label for="roc">ROC Number:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'roc') ? 'invalid' : '' %>"
+                type="roc" 
+                name="roc" 
+                id="roc" 
+                value="<%= oldInput.roc %>">
+            </div>
+            <div class="form-control">
+                <label for="name">Company Name:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'name') ? 'invalid' : '' %>"
+                type="name" 
+                name="name" 
+                id="name" 
+                value="<%= oldInput.name %>">
+            </div>
+            <div class="form-control">
+                <label for="owner">Owner:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'owner') ? 'invalid' : '' %>"
+                type="owner" 
+                name="owner" 
+                id="owner" 
+                value="<%= oldInput.owner %>">
+            </div>
+            <div class="form-control">
+                <label for="phone">Phone Number:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'phone') ? 'invalid' : '' %>"
+                type="phone" 
+                name="phone" 
+                id="phone"
+                value="+673<%= oldInput.phone %>">
+            </div>
+            <div class="form-control">
+                <label for="address">Address:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'address') ? 'invalid' : '' %>"
+                type="address" 
+                name="address" 
+                id="address" 
+                value="<%= oldInput.address %>">
+            </div>
+            <div class="form-control">
+                <label for="email">Email:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'email') ? 'invalid' : '' %>"
+                type="email" 
+                name="email" 
+                id="email" 
+                value="<%= oldInput.email %>">
+            </div>
+            <div class="form-control">
+                <label for="password">Password:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'password') ? 'invalid' : '' %>"
+                type="password" 
+                name="password" 
+                id="password" 
+                value="<%= oldInput.password %>">
+            </div>
+            <div class="form-control">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'confirmPassword') ? 'invalid' : '' %>"
+                type="password" 
+                name="confirmPassword" 
+                id="confirmPassword" 
+                value="<%= oldInput.confirmPassword %>">
+            </div>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button class="btn" type="submit">Register</button>
+        </form>
+    </main>
+<%- include('../includes/end.ejs') %>

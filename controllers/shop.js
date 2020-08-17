@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
-const stripe = require("stripe")("");
+const stripe = require("stripe")(
+  "sk_test_51H0mybBd2a4YxPFUmP9YPJTzI6YFpT0bmhJu9Inrtge0lhaxtc54m1Tvdehqui9iVhQvpNt3zR8KMpp3meu0Hiih00zMeDV4eW"
+);
 
 const PDFDocument = require("pdfkit");
 
@@ -73,7 +75,7 @@ exports.getIndex = (req, res, next) => {
     .then((products) => {
       res.render("shop/index", {
         prods: products,
-        pageTitle: "My Shop",
+        pageTitle: "AI Snap",
         path: "/",
         currentPage: page,
         hasNextPage: ITEMS_PER_PAGE * page < totalItems,

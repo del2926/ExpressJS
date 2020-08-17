@@ -10,7 +10,25 @@
         <% if (errorMessage) { %>
             <div class="user-error-message"><%= errorMessage %></div>
         <% } %>
-        <form class="signup-form" action="/signup" method="POST" novalidate>
+        <form class="register-form" action="/cust-register" method="POST" novalidate>
+            <div class="form-control">
+                <label for="fname">First Name:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'fname') ? 'invalid' : '' %>"
+                type="fname" 
+                name="fname" 
+                id="fname" 
+                value="<%= oldInput.fname %>">
+            </div>
+            <div class="form-control">
+                <label for="lname">Last Name:</label>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'lname') ? 'invalid' : '' %>"
+                type="lname" 
+                name="lname" 
+                id="lname" 
+                value="<%= oldInput.lname %>">
+            </div>
             <div class="form-control">
                 <label for="email">E-Mail:</label>
                 <input 
@@ -39,7 +57,7 @@
                 value="<%= oldInput.confirmPassword %>">
             </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <button class="btn" type="submit">Sign Up</button>
+            <button class="btn" type="submit">Register</button>
         </form>
     </main>
 <%- include('../includes/end.ejs') %>

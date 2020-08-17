@@ -4,13 +4,9 @@ const express = require("express");
 
 const { body } = require("express-validator");
 
-// const rootDir = require("../util/path");
-
 const adminController = require("../controllers/admin");
 
 const isAuth = require("../middleware/is-auth");
-
-// const adminData = require("./admin");
 
 const router = express.Router();
 
