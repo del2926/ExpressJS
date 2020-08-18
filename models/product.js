@@ -19,6 +19,10 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
+  keyword: {
+    type: String,
+    required: true,
+  },
   smeId: {
     type: Schema.Types.ObjectId,
     ref: "Sme",

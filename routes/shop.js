@@ -2,9 +2,6 @@ const path = require("path");
 
 const express = require("express");
 
-// const rootDir = require("../util/path");
-// const adminData = require("./admin");
-
 const shopController = require("../controllers/shop");
 
 const isAuth = require("../middleware/is-auth");
@@ -32,11 +29,5 @@ router.get("/checkout/cancel", shopController.getCheckout);
 router.get("/orders", isAuth, shopController.getOrders);
 
 router.get("/orders/:orderId", isAuth, shopController.getInvoice);
-
-// console.log(adminData.products);
-// res.sendFile(path.join(rootDir, "views", "shop.html"));
-
-// console.log("In another middleware!");
-// res.send("<h1>Hello from Express!</h1>");
 
 module.exports = router;

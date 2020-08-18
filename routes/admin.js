@@ -23,6 +23,7 @@ router.post(
     body("title").isString().isLength({ min: 3 }).trim(),
     body("price").isFloat(),
     body("description").isLength({ min: 5, max: 400 }).trim(),
+    body("keyword").isLength({ min: 5, max: 100 }).trim(),
   ],
   isAuth,
   adminController.postAddProduct
@@ -44,6 +45,3 @@ router.post(
 router.delete("/product/:productId", isAuth, adminController.deleteProduct);
 
 module.exports = router;
-
-// exports.routes = router;
-// exports.products = products;

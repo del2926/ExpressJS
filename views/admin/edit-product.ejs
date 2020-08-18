@@ -12,7 +12,7 @@
     <% } %>
     <form class="product-form" action="/admin/<% if (editing) { %>edit-product<% } else { %>add-product<% } %>" method="POST" enctype="multipart/form-data">
       <div class="form-control">
-        <label for="title">Title:</label>
+        <label for="title">Product Name:</label>
         <input 
         class="<%= validationErrors.find(e => e.param === 'title') ? 'invalid' : '' %>"
         type="text" 
@@ -44,6 +44,14 @@
         name="description" 
         id="description" 
         rows="5"><% if (editing || hasError) { %><%=product.description%><% } %></textarea>
+      </div>
+      <div class="form-control">
+        <label for="keyword">Keywords:</label>
+        <textarea 
+        class="<%= validationErrors.find(e => e.param === 'keyword') ? 'invalid' : '' %>"
+        name="keyword" 
+        id="keyword" 
+        rows="3"><% if (editing || hasError) { %><%=product.keyword%><% } %></textarea>
       </div>
       <% if (editing) { %>
         <input type="hidden" value="<%=product._id%>" name="productId">

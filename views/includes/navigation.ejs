@@ -19,7 +19,7 @@
         </a>
       </li>
       <li>
-        <a class="<%= path === '/orders' ? 'active' : '' %>" href="/orders"
+        <a class="<%= path === '/checkout' ? 'active' : '' %>" href="/checkout"
           >Orders
         </a>
       </li>
@@ -41,14 +41,6 @@
     </ul>
     <ul>
       <% if (!isAuthenticated) { %>
-      <li>
-        <a
-          class="<%= path === '/cust-login' ? 'active' : '' %>"
-          href="/cust-login"
-          >Login</a
-        >
-      </li>
-      <li class="main-header__item">|</li>
       <li class="main-header__item">
         <a
           class="<%= path === '/cust-register' ? 'active' : '' %>"
@@ -56,6 +48,15 @@
           >Register</a
         >
       </li>
+      <li class="main-header__item">|</li>
+      <li>
+        <a
+          class="<%= path === '/cust-login' ? 'active' : '' %>"
+          href="/cust-login"
+          >Login</a
+        >
+      </li>
+
       <li class="main-header__item">|</li>
       <li class="main-header__item">
         <a

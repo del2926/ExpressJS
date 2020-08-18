@@ -94,6 +94,7 @@ exports.getCustRegister = (req, res, next) => {
     oldInput: {
       fname: "",
       lname: "",
+      phone: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -276,7 +277,7 @@ exports.postSmeRegister = (req, res, next) => {
       return sme.save();
     })
     .then((result) => {
-      res.redirect("/login");
+      res.redirect("/sme-login");
       return transporter.sendMail({
         to: email,
         from: "delilah.azahari@gmail.com",
@@ -294,6 +295,7 @@ exports.postSmeRegister = (req, res, next) => {
 exports.postCustRegister = (req, res, next) => {
   const fname = req.body.fname;
   const lname = req.body.lname;
+  const phone = req.body.phone;
   const email = req.body.email;
   const password = req.body.password;
   const errors = validationResult(req);
@@ -306,6 +308,7 @@ exports.postCustRegister = (req, res, next) => {
       oldInput: {
         fname: fname,
         lname: lname,
+        phone: phone,
         email: email,
         password: password,
         confirmPassword: req.body.confirmPassword,
@@ -319,6 +322,7 @@ exports.postCustRegister = (req, res, next) => {
       const cust = new Cust({
         fname: fname,
         lname: lname,
+        phone: phone,
         email: email,
         password: hashedPassword,
         cart: { items: [] },
@@ -326,7 +330,7 @@ exports.postCustRegister = (req, res, next) => {
       return cust.save();
     })
     .then((result) => {
-      res.redirect("/login");
+      res.redirect("/cust-login");
       return transporter.sendMail({
         to: email,
         from: "delilah.azahari@gmail.com",

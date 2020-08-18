@@ -7,7 +7,7 @@ const Product = require("../models/product");
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
-    path: "/admin/edit-product",
+    path: "/admin/add-product",
     editing: false,
     hasError: false,
     errorMessage: null,
@@ -20,18 +20,20 @@ exports.postAddProduct = (req, res, next) => {
   const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
+  const keyword = req.body.keyword;
   if (!image) {
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Add Product",
-      path: "/admin/edit-product",
+      path: "/admin/add-product",
       editing: false,
       hasError: true,
       product: {
         title: title,
         price: price,
         description: description,
+        keyword: keyword,
       },
-      errorMessage: "Attached file is not an image!",
+      errorMessage: "Attached file is not an image.",
       validationErrors: [],
     });
   }
@@ -41,27 +43,29 @@ exports.postAddProduct = (req, res, next) => {
     console.log(errors.array());
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Add Product",
-      path: "/admin/edit-product",
+      path: "/admin/add-product",
       editing: false,
       hasError: true,
       product: {
         title: title,
-        imageUrl: imageUrl,
         price: price,
         description: description,
+        keyword: keyword,
       },
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),
     });
   }
 
-  const imageUrl = image.path.replace("\\", "/");
+  const imageUrl = image.path;
 
   const product = new Product({
     title: title,
     price: price,
     description: description,
     imageUrl: imageUrl,
+    keyword: keyword,
+    smeId: req.sme,
   });
   product
     .save()
@@ -71,6 +75,7 @@ exports.postAddProduct = (req, res, next) => {
     })
     .catch((err) => {
       const error = new Error(err);
+      console.log(error);
       error.httpStatusCode = 500;
       return next(error);
     });
@@ -110,6 +115,7 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const image = req.file;
   const updatedDesc = req.body.description;
+  const updatedKeyw = req.body.keyword;
 
   const errors = validationResult(req);
 
@@ -123,6 +129,7 @@ exports.postEditProduct = (req, res, next) => {
         title: updatedTitle,
         price: updatedPrice,
         description: updatedDesc,
+        keyword: updatedKeyw,
         _id: prodId,
       },
       errorMessage: errors.array()[0].msg,
@@ -132,12 +139,13 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(prodId)
     .then((product) => {
-      if (product.userId.toString() !== req.user._id.toString()) {
+      if (product.smeId.toString() !== req.sme._id.toString()) {
         return res.redirect("/");
       }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
+      product.keyword = updatedKeyw;
       if (image) {
         fileHelper.deleteFile(product.imageUrl);
         product.imageUrl = image.path;
@@ -155,9 +163,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find({ userId: req.user._id })
-    // .select('title price -_id')
-    // .populate('userId', 'name')
+  Product.find({ smeId: req.sme._id })
     .then((products) => {
       console.log(products);
       res.render("admin/products", {
@@ -181,7 +187,7 @@ exports.deleteProduct = (req, res, next) => {
         return next(new Error("Product not found."));
       }
       fileHelper.deleteFile(product.imageUrl);
-      return Product.deleteOne({ _id: prodId, userId: req.user._id });
+      return Product.deleteOne({ _id: prodId, smeId: req.sme._id });
     })
     .then(() => {
       console.log("DESTROYED PRODUCT");

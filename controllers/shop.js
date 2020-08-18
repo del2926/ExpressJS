@@ -9,7 +9,7 @@ const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 3;
 
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
@@ -77,12 +77,6 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: "AI Snap",
         path: "/",
-        currentPage: page,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
@@ -93,11 +87,11 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  req.user
+  req.sme
     .populate("cart.items.productId")
     .execPopulate()
-    .then((user) => {
-      const products = user.cart.items;
+    .then((sme) => {
+      const products = sme.cart.items;
       res.render("shop/cart", {
         path: "/cart",
         pageTitle: "Your Cart",
@@ -115,7 +109,7 @@ exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then((product) => {
-      return req.user.addToCart(product);
+      return req.sme.addToCart(product);
     })
     .then((result) => {
       console.log(result);
@@ -125,7 +119,7 @@ exports.postCart = (req, res, next) => {
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  req.user
+  req.sme
     .removeFromCart(prodId)
     .then((result) => {
       res.redirect("/cart");
@@ -140,11 +134,11 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.getCheckout = (req, res, next) => {
   let products;
   let total = 0;
-  req.user
+  req.sme
     .populate("cart.items.productId")
     .execPopulate()
-    .then((user) => {
-      products = user.cart.items;
+    .then((sme) => {
+      products = sme.cart.items;
       total = 0;
       products.forEach((p) => {
         total += p.quantity * p.productId.price;
@@ -182,24 +176,24 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.getCheckoutSuccess = (req, res, next) => {
-  req.user
+  req.sme
     .populate("cart.items.productId")
     .execPopulate()
-    .then((user) => {
-      const products = user.cart.items.map((i) => {
+    .then((sme) => {
+      const products = sme.cart.items.map((i) => {
         return { quantity: i.quantity, product: { ...i.productId._doc } };
       });
       const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user,
+        sme: {
+          email: req.sme.email,
+          smeId: req.sme,
         },
         products: products,
       });
       return order.save();
     })
     .then((result) => {
-      return req.user.clearCart();
+      return req.sme.clearCart();
     })
     .then(() => {
       res.redirect("/orders");
@@ -212,24 +206,24 @@ exports.getCheckoutSuccess = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  req.user
+  req.sme
     .populate("cart.items.productId")
     .execPopulate()
-    .then((user) => {
-      const products = user.cart.items.map((i) => {
+    .then((sme) => {
+      const products = sme.cart.items.map((i) => {
         return { quantity: i.quantity, product: { ...i.productId._doc } };
       });
       const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user,
+        sme: {
+          email: req.sme.email,
+          smeId: req.sme,
         },
         products: products,
       });
       return order.save();
     })
     .then((result) => {
-      return req.user.clearCart();
+      return req.sme.clearCart();
     })
     .then(() => {
       res.redirect("/orders");
@@ -242,7 +236,7 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  Order.find({ "user.userId": req.user._id })
+  Order.find({ "sme.smeId": req.sme._id })
     .then((orders) => {
       res.render("shop/orders", {
         path: "/orders",
@@ -264,7 +258,7 @@ exports.getInvoice = (req, res, next) => {
       if (!order) {
         return next(new Error("No order found!"));
       }
-      if (order.user.userId.toString() !== req.user._id.toString()) {
+      if (order.sme.smeId.toString() !== req.sme._id.toString()) {
         return next(new Error("Unauthorized!"));
       }
       const invoiceName = "invoice-" + orderId + ".pdf";
@@ -298,20 +292,6 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.text("--------------------------------------------");
       pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
       pdfDoc.end();
-      //   fs.readFile(invoicePath, (err, data) => {
-      //     if (err) {
-      //       return next(err);
-      //     }
-      //     res.setHeader("Content-Type", "application/pdf");
-      //     res.setHeader(
-      //       "Content-Disposition",
-      //       'inline: filename="' + invoiceName + '"'
-      //     );
-      //     res.send(data);
-      //   });
-      // const file = fs.createReadStream(invoicePath);
-
-      // file.pipe(res);
     })
     .catch((err) => next(err));
 };

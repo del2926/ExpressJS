@@ -14,10 +14,14 @@
       <% }) %>
     </ul>
     <div class="centered">
+      <input type="radio" id="delivery" name="order-type" value="delivery">
+      <label for="delivery">Delivery</label>
+      <input type="radio" id="pickup" name="order-type" value="pickup">
+      <label for="pickup">Pickup</label>
       <h2>Total: <%= totalSum %></h2>
     </div>
     <div class="centered">
-      <button id="order-btn" class="btn">ORDER</button>
+      <button id="order-btn" class="btn">Proceed to Checkout</button>
       <script src="https://js.stripe.com/v3/"></script>
       <script>
           var stripe = Stripe('pk_test_51H0mybBd2a4YxPFUezGoDQndwa8HIGWNPrpp0iC14nJM1BsrMzqE5jDET4U9KJOrlD1HHHn9uWB2ORQ40pK2V4HL00TyMIJ7PR');
