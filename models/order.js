@@ -9,15 +9,16 @@ const orderSchema = new Schema({
       quantity: { type: Number, required: true },
     },
   ],
-  user: {
+  customer: {
     email: {
       type: String,
       required: true,
+      ref: "Customer",
     },
-    userId: {
+    customerId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "Customer",
     },
   },
 });

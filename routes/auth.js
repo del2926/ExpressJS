@@ -6,7 +6,7 @@ const authController = require("../controllers/auth");
 
 const Sme = require("../models/sme");
 
-const Cust = require("../models/customer");
+const Customer = require("../models/customer");
 
 const router = express.Router();
 
@@ -85,8 +85,8 @@ router.post(
       .isEmail()
       .withMessage("Please enter a valid email.")
       .custom((value, { req }) => {
-        return Cust.findOne({ email: value }).then((custDoc) => {
-          if (custDoc) {
+        return Customer.findOne({ email: value }).then((customerDoc) => {
+          if (customerDoc) {
             return Promise.reject("E-Mail already exists!");
           }
         });

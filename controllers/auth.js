@@ -6,7 +6,7 @@ const { validationResult } = require("express-validator");
 
 const Sme = require("../models/sme");
 
-const Cust = require("../models/customer");
+const Customer = require("../models/customer");
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -72,6 +72,7 @@ exports.getSmeRegister = (req, res, next) => {
       owner: "",
       phone: "",
       address: "",
+      location: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -185,9 +186,9 @@ exports.postCustLogin = (req, res, next) => {
     });
   }
 
-  Cust.findOne({ email: email })
-    .then((cust) => {
-      if (!cust) {
+  Customer.findOne({ email: email })
+    .then((customer) => {
+      if (!customer) {
         return res.status(422).render("auth/cust-login", {
           path: "/cust-login",
           pageTitle: "Login",
@@ -200,11 +201,11 @@ exports.postCustLogin = (req, res, next) => {
         });
       }
       bcrypt
-        .compare(password, cust.password)
+        .compare(password, customer.password)
         .then((doMatch) => {
           if (doMatch) {
             req.session.isLoggedIn = true;
-            req.session.cust = cust;
+            req.session.customer = customer;
             return req.session.save((err) => {
               console.log(err);
               res.redirect("/");
@@ -239,6 +240,7 @@ exports.postSmeRegister = (req, res, next) => {
   const owner = req.body.owner;
   const phone = req.body.phone;
   const address = req.body.address;
+  const location = req.body.location;
   const email = req.body.email;
   const password = req.body.password;
   const errors = validationResult(req);
@@ -254,6 +256,7 @@ exports.postSmeRegister = (req, res, next) => {
         owner: owner,
         phone: phone,
         address: address,
+        location: location,
         email: email,
         password: password,
         confirmPassword: req.body.confirmPassword,
@@ -270,9 +273,9 @@ exports.postSmeRegister = (req, res, next) => {
         owner: owner,
         phone: phone,
         address: address,
+        location: location,
         email: email,
         password: hashedPassword,
-        cart: { items: [] },
       });
       return sme.save();
     })
@@ -319,7 +322,7 @@ exports.postCustRegister = (req, res, next) => {
   bcrypt
     .hash(password, 12)
     .then((hashedPassword) => {
-      const cust = new Cust({
+      const customer = new Customer({
         fname: fname,
         lname: lname,
         phone: phone,
@@ -327,7 +330,7 @@ exports.postCustRegister = (req, res, next) => {
         password: hashedPassword,
         cart: { items: [] },
       });
-      return cust.save();
+      return customer.save();
     })
     .then((result) => {
       res.redirect("/cust-login");

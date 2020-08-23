@@ -1,5 +1,11 @@
 <%- include('../includes/head.ejs') %>
   <link rel="stylesheet" href="/css/product.css" />
+  <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous"
+  />
 </head>
 
 <body>
@@ -11,7 +17,7 @@
       <% for (let product of prods) { %>
       <article class="card product-item">
         <header class="card__header">
-          <h1 class="product__title"><%=product.title%></h1>
+          <h1 class="sme__name"><%=product.smeName%> <a href="<%=product.smeLocation%>" target="_blank"><i class="fas fa-map-marker-alt"></i></a></h1>
         </header>
         <div class="card__image">
           <img
@@ -19,8 +25,8 @@
             alt="<%=product.title%>"/>
         </div>
         <div class="card__content">
+          <h2 class="product__title"><%=product.title%></h2>
           <h2 class="product__price">$<%=product.price%></h2>
-          <p class="product__description"><%=product.description%></p>
         </div>
         <div class="card__actions">
           <a href="/products/<%=product._id%>" class="btn">Details</a>

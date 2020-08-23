@@ -22,7 +22,7 @@ const errorController = require("./controllers/error");
 
 const Sme = require("./models/sme");
 
-const Cust = require("./models/customer");
+const Customer = require("./models/customer");
 
 const MONGODB_URI =
   "mongodb+srv://Delilah:sitiDel2926@cluster0-9grtz.mongodb.net/shop?retryWrites=true&w=majority";
@@ -99,15 +99,15 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  if (!req.session.cust) {
+  if (!req.session.customer) {
     return next();
   }
-  Cust.findById(req.session.cust._id)
-    .then((cust) => {
-      if (!cust) {
+  Customer.findById(req.session.customer._id)
+    .then((customer) => {
+      if (!customer) {
         return next();
       }
-      req.cust = cust;
+      req.customer = customer;
       next();
     })
     .catch((err) => {
@@ -117,6 +117,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.isCustomer = req.session.customer;
   res.locals.csrfToken = req.csrfToken();
   next();
 });

@@ -17,13 +17,18 @@
 }
 
 .cart-item h1,
-.cart-item h2 {
+.cart-item h2,
+.cart-item h3 {
   font-size: 1.2rem;
   margin: 0;
   padding-bottom: 1rem;
 }
 
 .cart-item h2 {
+  color: rgb(20, 107, 220);
+}
+
+.cart-item h3 {
   color: crimson;
 }
 

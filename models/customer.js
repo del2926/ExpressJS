@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const custSchema = new Schema({
+const customerSchema = new Schema({
   fname: {
     type: String,
     required: true,
@@ -39,7 +39,7 @@ const custSchema = new Schema({
   },
 });
 
-custSchema.methods.addToCart = function (product) {
+customerSchema.methods.addToCart = function (product) {
   const cartProductIndex = this.cart.items.findIndex((cp) => {
     return cp.productId.toString() === product._id.toString();
   });
@@ -55,7 +55,6 @@ custSchema.methods.addToCart = function (product) {
       quantity: newQuantity,
     });
   }
-
   const updatedCart = {
     items: updatedCartItems,
   };
@@ -63,7 +62,7 @@ custSchema.methods.addToCart = function (product) {
   return this.save();
 };
 
-custSchema.methods.removeFromCart = function (productId) {
+customerSchema.methods.removeFromCart = function (productId) {
   const updatedCartItems = this.cart.items.filter((item) => {
     return item.productId.toString() !== productId.toString();
   });
@@ -71,9 +70,9 @@ custSchema.methods.removeFromCart = function (productId) {
   return this.save();
 };
 
-custSchema.methods.clearCart = function () {
+customerSchema.methods.clearCart = function () {
   this.cart = { items: [] };
   return this.save();
 };
 
-module.exports = mongoose.model("Customer", custSchema);
+module.exports = mongoose.model("Customer", customerSchema);

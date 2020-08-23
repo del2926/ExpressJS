@@ -19,10 +19,11 @@
         </a>
       </li>
       <li>
-        <a class="<%= path === '/checkout' ? 'active' : '' %>" href="/checkout"
+        <a class="<%= path === '/orders' ? 'active' : '' %>" href="/orders"
           >Orders
         </a>
       </li>
+      <% if (isAuthenticated && !isCustomer) { %>
       <li>
         <a
           class="<%= path === '/admin/add-product' ? 'active' : '' %>"
@@ -34,10 +35,10 @@
         <a
           class="<%= path === '/admin/products' ? 'active' : '' %>"
           href="/admin/products"
-          >Admin Products
+          >Your Products
         </a>
       </li>
-      <% } %>
+      <% } %> <% } %>
     </ul>
     <ul>
       <% if (!isAuthenticated) { %>
@@ -104,6 +105,7 @@
         >Orders</a
       >
     </li>
+    <% if (isAuthenticated && !isCustomer) { %>
     <li class="mobile-nav__item">
       <a
         class="<%= path === '/admin/add-product' ? 'active' : '' %>"
@@ -118,7 +120,7 @@
         >Admin Products
       </a>
     </li>
-    <% } %> <% if (!isAuthenticated) { %>
+    <% } %> <% } %> <% if (!isAuthenticated) { %>
     <li class="mobile-nav__item">
       <a class="<%= path === '/login' ? 'active' : '' %>" href="/login"
         >Login</a

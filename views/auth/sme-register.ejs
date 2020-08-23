@@ -57,6 +57,17 @@
                 value="<%= oldInput.address %>">
             </div>
             <div class="form-control">
+                <label for="location">Location:</label>
+                <a href='https://www.google.com/maps' target='_blank'>Show Map</a><br>
+                <input 
+                class="<%= validationErrors.find(e => e.param === 'location') ? 'invalid' : '' %>"
+                type="location" 
+                name="location" 
+                id="location" 
+                placeholder="Paste the link here"
+                value="<%= oldInput.location %>">
+            </div>
+            <div class="form-control">
                 <label for="email">Email:</label>
                 <input 
                 class="<%= validationErrors.find(e => e.param === 'email') ? 'invalid' : '' %>"

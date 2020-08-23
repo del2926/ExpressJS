@@ -1,11 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 const stripe = require("stripe")(
-  "sk_test_51H0mybBd2a4YxPFUmP9YPJTzI6YFpT0bmhJu9Inrtge0lhaxtc54m1Tvdehqui9iVhQvpNt3zR8KMpp3meu0Hiih00zMeDV4eW"
+  "sk_test_51HHivHA3LB3pGIwN7EzJVR0blGwXfMXVwIN7lK75NnkcE7iidQKCixwPMt32LYCDUIIQGkikiJkAR4xsvj6BemR000CuB6tS1W"
 );
+const { validationResult } = require("express-validator");
 
 const PDFDocument = require("pdfkit");
-
 const Product = require("../models/product");
 const Order = require("../models/order");
 
@@ -61,37 +61,21 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  const page = +req.query.page || 1;
-  let totalItems;
-
-  Product.find()
-    .countDocuments()
-    .then((numProducts) => {
-      totalItems = numProducts;
-      return Product.find()
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
-    })
-    .then((products) => {
-      res.render("shop/index", {
-        prods: products,
-        pageTitle: "AI Snap",
-        path: "/",
-      });
-    })
-    .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
-    });
+  res.render("shop/index", {
+    pageTitle: "AI Snap",
+    path: "/",
+    hasError: false,
+    errorMessage: null,
+    validationErrors: [],
+  });
 };
 
 exports.getCart = (req, res, next) => {
-  req.sme
+  req.customer
     .populate("cart.items.productId")
     .execPopulate()
-    .then((sme) => {
-      const products = sme.cart.items;
+    .then((customer) => {
+      const products = customer.cart.items;
       res.render("shop/cart", {
         path: "/cart",
         pageTitle: "Your Cart",
@@ -109,17 +93,22 @@ exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then((product) => {
-      return req.sme.addToCart(product);
+      return req.customer.addToCart(product);
     })
     .then((result) => {
       console.log(result);
       res.redirect("/cart");
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  req.sme
+  req.customer
     .removeFromCart(prodId)
     .then((result) => {
       res.redirect("/cart");
@@ -134,21 +123,22 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.getCheckout = (req, res, next) => {
   let products;
   let total = 0;
-  req.sme
+  req.customer
     .populate("cart.items.productId")
     .execPopulate()
-    .then((sme) => {
-      products = sme.cart.items;
+    .then((customer) => {
+      products = customer.cart.items;
       total = 0;
       products.forEach((p) => {
         total += p.quantity * p.productId.price;
       });
+
       return stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: products.map((p) => {
           return {
             name: p.productId.title,
-            description: p.productId.description,
+            description: p.productId.smeName,
             amount: p.productId.price * 100,
             currency: "bnd",
             quantity: p.quantity,
@@ -176,24 +166,24 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.getCheckoutSuccess = (req, res, next) => {
-  req.sme
+  req.customer
     .populate("cart.items.productId")
     .execPopulate()
-    .then((sme) => {
-      const products = sme.cart.items.map((i) => {
+    .then((customer) => {
+      const products = customer.cart.items.map((i) => {
         return { quantity: i.quantity, product: { ...i.productId._doc } };
       });
       const order = new Order({
-        sme: {
-          email: req.sme.email,
-          smeId: req.sme,
+        customer: {
+          email: req.customer.email,
+          customerId: req.customer,
         },
         products: products,
       });
       return order.save();
     })
     .then((result) => {
-      return req.sme.clearCart();
+      return req.customer.clearCart();
     })
     .then(() => {
       res.redirect("/orders");
@@ -206,24 +196,24 @@ exports.getCheckoutSuccess = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  req.sme
+  req.customer
     .populate("cart.items.productId")
     .execPopulate()
-    .then((sme) => {
-      const products = sme.cart.items.map((i) => {
+    .then((customer) => {
+      const products = customer.cart.items.map((i) => {
         return { quantity: i.quantity, product: { ...i.productId._doc } };
       });
       const order = new Order({
-        sme: {
-          email: req.sme.email,
-          smeId: req.sme,
+        customer: {
+          email: req.customer.email,
+          customerId: req.customer,
         },
         products: products,
       });
       return order.save();
     })
     .then((result) => {
-      return req.sme.clearCart();
+      return req.customer.clearCart();
     })
     .then(() => {
       res.redirect("/orders");
@@ -236,7 +226,7 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  Order.find({ "sme.smeId": req.sme._id })
+  Order.find({ "customer.customerId": req.customer._id })
     .then((orders) => {
       res.render("shop/orders", {
         path: "/orders",
@@ -258,7 +248,9 @@ exports.getInvoice = (req, res, next) => {
       if (!order) {
         return next(new Error("No order found!"));
       }
-      if (order.sme.smeId.toString() !== req.sme._id.toString()) {
+      if (
+        order.customer.customerId.toString() !== req.customer._id.toString()
+      ) {
         return next(new Error("Unauthorized!"));
       }
       const invoiceName = "invoice-" + orderId + ".pdf";
@@ -281,7 +273,10 @@ exports.getInvoice = (req, res, next) => {
         pdfDoc
           .fontSize(14)
           .text(
-            prod.product.title +
+            prod.product.smeName +
+              "\n" +
+              "*" +
+              prod.product.title +
               " - " +
               prod.quantity +
               " x " +

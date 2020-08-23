@@ -28,6 +28,16 @@ const productSchema = new Schema({
     ref: "Sme",
     required: true,
   },
+  smeName: {
+    type: Schema.Types.String,
+    ref: "Sme",
+    required: true,
+  },
+  smeLocation: {
+    type: Schema.Types.String,
+    ref: "Sme",
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Product", productSchema);

@@ -9,11 +9,12 @@
       <% products.forEach(p => { %>
         <li class="cart-item">
           <h1><%= p.productId.title %></h1>
-          <h2>Quantity: <%= p.quantity %></h2>
+          <h2><%= p.productId.smeName %></h2>
+          <h3>Quantity: <%= p.quantity %></h3>
         </li>
       <% }) %>
     </ul>
-    <div class="centered">
+    <div class="centered"><br>
       <input type="radio" id="delivery" name="order-type" value="delivery">
       <label for="delivery">Delivery</label>
       <input type="radio" id="pickup" name="order-type" value="pickup">
@@ -24,7 +25,7 @@
       <button id="order-btn" class="btn">Proceed to Checkout</button>
       <script src="https://js.stripe.com/v3/"></script>
       <script>
-          var stripe = Stripe('pk_test_51H0mybBd2a4YxPFUezGoDQndwa8HIGWNPrpp0iC14nJM1BsrMzqE5jDET4U9KJOrlD1HHHn9uWB2ORQ40pK2V4HL00TyMIJ7PR');
+          var stripe = Stripe('pk_test_51HHivHA3LB3pGIwNjlRpWiDXa62f3y1hVs1pVCd1I5sgYgnTtBCFImLAtOJtgF9XZyJKOHawu0wbrNbNjImlVQU200vE7iRgWk');
           var orderBtn = document.getElementById('order-btn');
           orderBtn.addEventListener('click', function() {
               stripe.redirectToCheckout({

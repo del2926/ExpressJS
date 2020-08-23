@@ -65,7 +65,9 @@ exports.postAddProduct = (req, res, next) => {
     description: description,
     imageUrl: imageUrl,
     keyword: keyword,
-    smeId: req.sme,
+    smeId: req.sme._id,
+    smeName: req.sme.name,
+    smeLocation: req.sme.location,
   });
   product
     .save()

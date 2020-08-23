@@ -38,6 +38,11 @@ form {
   color: blue;
 }
 
+.centered img {
+  width: 40%;
+  height: 40%;
+}
+
 hr {
   height: 3px;
   background: black;
