@@ -7,14 +7,12 @@
   <%- include('../includes/navigation.ejs') %>
   
   <main>
-    <% if (errorMessage) { %>
-      <div class="user-error-message"><%= errorMessage %></div>
-    <% } %>
     <div class="centered">
       <h1>What are you looking for?</h1>
-      <form class="match-form" action="/" method="POST" enctype="multipart/form-data">
+      <form class="match-form" action="/match" method="POST" enctype="multipart/form-data">
         <div class="form-control">
           <input type="file" name="image" id="image"><br>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <button class="btn" type="submit">Submit</button>
         </div>
       </form>

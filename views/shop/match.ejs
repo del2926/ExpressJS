@@ -1,0 +1,24 @@
+<%- include('../includes/head.ejs') %>
+  <link rel="stylesheet" href="/css/product.css" />
+</head>
+
+<body>
+  <%- include('../includes/navigation.ejs') %>
+  
+  <main>
+    <% if (mths.length > 0) { %>
+      <div class="grid">
+        <h2>You searched for...</h2>
+        <% for (let match of mths) { %>
+          <article class="product-item">
+            <div class="card__image">
+              <img src="/<%=match.imageUrl%>"/>
+            </div>
+          </article>
+        <% } %>
+      </div>
+    <% } else { %>
+      <h1>No Products Searched...</h1>
+    <% } %>
+  </main>
+<%- include('../includes/end.ejs') %>

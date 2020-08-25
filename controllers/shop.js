@@ -6,6 +6,7 @@ const stripe = require("stripe")(
 const { validationResult } = require("express-validator");
 
 const PDFDocument = require("pdfkit");
+const Match = require("../models/match");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
@@ -64,10 +65,69 @@ exports.getIndex = (req, res, next) => {
   res.render("shop/index", {
     pageTitle: "AI Snap",
     path: "/",
-    hasError: false,
-    errorMessage: null,
+    oldInput: {
+      imageUrl: "",
+    },
     validationErrors: [],
   });
+};
+
+exports.postIndex = (req, res, next) => {
+  const image = req.file;
+  if (!image) {
+    return res.status(422).render("shop/index", {
+      pageTitle: "AI Snap",
+      path: "/",
+      hasError: true,
+      errorMessage: "Attached file is not an image.",
+      validationErrors: [],
+    });
+  }
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("shop/index", {
+      pageTitle: "AI Snap",
+      path: "/",
+      hasError: true,
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+    });
+  }
+
+  const imageUrl = image.path;
+
+  const match = new Match({
+    imageUrl: imageUrl,
+  });
+  match
+    .save()
+    .then((result) => {
+      res.redirect("/match");
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      console.log(error);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.getMatch = (req, res, next) => {
+  Match.find()
+    .then((matches) => {
+      res.render("shop/match", {
+        mths: matches,
+        pageTitle: "Find Product",
+        path: "/match",
+      });
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getCart = (req, res, next) => {

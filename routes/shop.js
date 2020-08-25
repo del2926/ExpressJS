@@ -10,6 +10,10 @@ const router = express.Router();
 
 router.get("/", shopController.getIndex);
 
+router.post("/match", shopController.postIndex);
+
+router.get("/match", shopController.getMatch);
+
 router.get("/products", shopController.getProducts);
 
 router.get("/products/:productId", shopController.getProduct);
