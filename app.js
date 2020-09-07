@@ -25,7 +25,7 @@ const Sme = require("./models/sme");
 const Customer = require("./models/customer");
 
 const MONGODB_URI =
-  "mongodb+srv://Delilah:sitiDel2926@cluster0.9grtz.mongodb.net/shop?retryWrites=true&w=majority";
+  "mongodb+srv://Delilah:siti@Del2926@cluster0.9grtz.mongodb.net/shop?retryWrites=true&w=majority";
 
 const app = express();
 const store = new MongoDBStore({
