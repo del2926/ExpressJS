@@ -141,8 +141,8 @@ hr {
   cursor: pointer;
 }
 
-.mobile-nav__item a:active,
 .mobile-nav__item a:hover,
+.mobile-nav__item a:active,
 .mobile-nav__item a.active,
 .mobile-nav__item button:hover,
 .mobile-nav__item button:active {
@@ -152,12 +152,13 @@ hr {
 }
 
 #side-menu-toggle {
-  border: 1px solid white;
+  border: 1px solid rgb(250, 236, 217);
   font: inherit;
+  font-weight: bold;
   padding: 0.5rem;
   display: block;
   background: transparent;
-  color: white;
+  color: rgb(104, 4, 134);
   cursor: pointer;
 }
 
@@ -167,8 +168,8 @@ hr {
 
 #side-menu-toggle:active,
 #side-menu-toggle:hover {
-  color: #ffeb3b;
-  border-color: #ffeb3b;
+  color: rgb(252, 121, 13);
+  border-color: rgb(252, 121, 13);
 }
 
 .backdrop {
@@ -272,7 +273,21 @@ hr {
   color: #fff;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 200px) and (max-width: 400px) {
+  .main-nav {
+    display: none;
+  }
+
+  #side-menu-toggle {
+    display: flex;
+  }
+
+  .user-error-message {
+    width: 20rem;
+  }
+}
+
+@media (min-width: 401px) {
   .main-nav {
     display: flex;
   }

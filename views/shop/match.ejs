@@ -1,5 +1,11 @@
 <%- include('../includes/head.ejs') %>
   <link rel="stylesheet" href="/css/product.css" />
+  <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous"
+  />
 </head>
 
 <body>
@@ -13,6 +19,29 @@
           <article class="product-item">
             <div class="card__image">
               <img src="/<%=match.imageUrl%>"/>
+            </div>
+          </article>
+        <% } %>
+      </div>
+
+      <div class="grid">
+        <h2>Recommended products:</h2>
+        <% for (let match of mths) { %>
+          <article class="card product-item">
+            <header class="card__header">
+              <h1 class="sme__name">Company Name <a href="https://www.google.com/maps" target="_blank"><i class="fas fa-map-marker-alt"></i></a></h1>
+            </header>
+            <div class="card__image">
+              <img src="/<%=match.imageUrl%>"/>
+            </div>
+            <div class="card__content">
+              <h3 class="product__title">Name of product</h2>
+              <h3 class="product__price">Price ($)</h2>
+            </div>
+            <div class="card__actions">
+              <% if (isAuthenticated) { %>
+                <button class="btn">Add to Cart</button>
+              <% } %>
             </div>
           </article>
         <% } %>

@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
       api_key:
-        "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",
+        "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",
     },
   })
 );
@@ -26,10 +26,10 @@ exports.getSmeLogin = (req, res, next) => {
   }
   res.render("auth/sme-login", {
     path: "/sme-login",
-    pageTitle: "Login",
+    pageTitle: "SME Login",
     errorMessage: message,
     oldInput: {
-      roc: "",
+      email: "",
       password: "",
     },
     validationErrors: [],
@@ -105,31 +105,31 @@ exports.getCustRegister = (req, res, next) => {
 };
 
 exports.postSmeLogin = (req, res, next) => {
-  const roc = req.body.roc;
+  const email = req.body.email;
   const password = req.body.password;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/sme-login", {
       path: "/sme-login",
-      pageTitle: "Login",
+      pageTitle: "SME Login",
       errorMessage: errors.array()[0].msg,
       oldInput: {
-        roc: roc,
+        email: email,
         password: password,
       },
       validationErrors: errors.array(),
     });
   }
 
-  Sme.findOne({ roc: roc })
+  Sme.findOne({ email: email })
     .then((sme) => {
       if (!sme) {
         return res.status(422).render("auth/sme-login", {
           path: "/sme-login",
-          pageTitle: "Login",
-          errorMessage: "Invalid ROC Number!",
+          pageTitle: "SME Login",
+          errorMessage: "Invalid Email!",
           oldInput: {
-            roc: roc,
+            email: email,
             password: password,
           },
           validationErrors: [],
@@ -148,10 +148,10 @@ exports.postSmeLogin = (req, res, next) => {
           }
           return res.status(422).render("auth/sme-login", {
             path: "/sme-login",
-            pageTitle: "Login",
+            pageTitle: "SME Login",
             errorMessage: "Invalid Password!",
             oldInput: {
-              roc: roc,
+              email: email,
               password: password,
             },
             validationErrors: [],
@@ -283,7 +283,7 @@ exports.postSmeRegister = (req, res, next) => {
       res.redirect("/sme-login");
       return transporter.sendMail({
         to: email,
-        from: "delilah.azahari@gmail.com",
+        from: "khairul.suhamy@gmail.com",
         subject: "AI Snap Registration",
         html: "<h1>You are successfully registered!</h1>",
       });
@@ -336,7 +336,7 @@ exports.postCustRegister = (req, res, next) => {
       res.redirect("/cust-login");
       return transporter.sendMail({
         to: email,
-        from: "delilah.azahari@gmail.com",
+        from: "khairul.suhamy@gmail.com",
         subject: "AI Snap Registration",
         html: "<h1>You are successfully registered!</h1>",
       });
@@ -390,7 +390,7 @@ exports.postReset = (req, res, next) => {
         res.redirect("/");
         transporter.sendMail({
           to: req.body.email,
-          from: "delilah.azahari@gmail.com",
+          from: "khairul.suhamy@gmail.com",
           subject: "Password Reset",
           html: `
             <p>You have requested to reset your password.</p>
@@ -453,7 +453,7 @@ exports.postNewPassword = (req, res, next) => {
       return resetSme.save();
     })
     .then((result) => {
-      res.redirect("/login");
+      res.redirect("/sme-login");
     })
     .catch((err) => {
       const error = new Error(err);

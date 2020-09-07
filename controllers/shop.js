@@ -65,6 +65,8 @@ exports.getIndex = (req, res, next) => {
   res.render("shop/index", {
     pageTitle: "AI Snap",
     path: "/",
+    hasError: false,
+    errorMessage: null,
     oldInput: {
       imageUrl: "",
     },

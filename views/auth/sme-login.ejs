@@ -12,13 +12,13 @@
     <% } %>
     <form class="login-form" action="/sme-login" method="POST">
       <div class="form-control">
-        <label for="roc">ROC Number:</label>
+        <label for="email">Email:</label>
         <input 
-        class="<%= validationErrors.find(e => e.param === 'roc') ? 'invalid' : '' %>"
-        type="roc" 
-        name="roc" 
-        id="roc" 
-        value="<%= oldInput.roc %>">
+        class="<%= validationErrors.find(e => e.param === 'email') ? 'invalid' : '' %>"
+        type="email"
+        name="email" 
+        id="email" 
+        value="<%= oldInput.email %>">
       </div>
       <div class="form-control">
         <label for="password">Password:</label>

@@ -72,7 +72,7 @@ exports.postAddProduct = (req, res, next) => {
   product
     .save()
     .then((result) => {
-      console.log("Created Product");
+      console.log("CREATED PRODUCT!");
       res.redirect("/admin/products");
     })
     .catch((err) => {
@@ -192,7 +192,7 @@ exports.deleteProduct = (req, res, next) => {
       return Product.deleteOne({ _id: prodId, smeId: req.sme._id });
     })
     .then(() => {
-      console.log("DESTROYED PRODUCT");
+      console.log("DESTROYED PRODUCT!");
       res.status(200).json({ message: "Success!" });
     })
     .catch((err) => {
