@@ -331,7 +331,7 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.text("--------------------------------------------");
       let totalPrice = 0;
       order.products.forEach((prod) => {
-        totalPrice.toFixed(2) += prod.quantity * prod.product.price;
+        totalPrice += prod.quantity * prod.product.price;
         pdfDoc
           .fontSize(14)
           .text(
@@ -343,11 +343,12 @@ exports.getInvoice = (req, res, next) => {
               prod.quantity +
               " x " +
               "$" +
-              prod.product.price
+              prod.product.price +
+              "\n"
           );
       });
-      pdfDoc.text("---------------------------------------------------");
-      pdfDoc.fontSize(20).text("Total Price: $" + totalPrice.toFixed(2));
+      pdfDoc.text("--------------------------------------------");
+      pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
       pdfDoc.end();
     })
     .catch((err) => next(err));
