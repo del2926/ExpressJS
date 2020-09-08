@@ -39,7 +39,7 @@
               <h3 class="product__price">Price ($)</h2>
             </div>
             <div class="card__actions">
-              <% if (isAuthenticated) { %>
+              <% if (isAuthenticated && isCustomer) { %>
                 <button class="btn">Add to Cart</button>
               <% } %>
             </div>
