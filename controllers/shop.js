@@ -10,7 +10,7 @@ const Match = require("../models/match");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 4;
 
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
@@ -331,7 +331,7 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.text("--------------------------------------------");
       let totalPrice = 0;
       order.products.forEach((prod) => {
-        totalPrice += prod.quantity * prod.product.price;
+        totalPrice.toFixed(2) += prod.quantity * prod.product.price;
         pdfDoc
           .fontSize(14)
           .text(
@@ -346,8 +346,8 @@ exports.getInvoice = (req, res, next) => {
               prod.product.price
           );
       });
-      pdfDoc.text("--------------------------------------------");
-      pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
+      pdfDoc.text("---------------------------------------------------");
+      pdfDoc.fontSize(20).text("Total Price: $" + totalPrice.toFixed(2));
       pdfDoc.end();
     })
     .catch((err) => next(err));

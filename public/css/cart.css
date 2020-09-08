@@ -43,8 +43,8 @@
   font: inherit;
   font-weight: bold;
   border: 1px solid #000;
-  background-color: coral;
-  color: black;
+  background-color: rgb(136, 7, 175);
+  color: white;
   border-radius: 3px;
   cursor: pointer;
 }
