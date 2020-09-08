@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const stripe = require("stripe")(
-  "sk_test_51HHivHA3LB3pGIwN7EzJVR0blGwXfMXVwIN7lK75NnkcE7iidQKCixwPMt32LYCDUIIQGkikiJkAR4xsvj6BemR000CuB6tS1W"
+  "sk_test_51H0mybBd2a4YxPFUmP9YPJTzI6YFpT0bmhJu9Inrtge0lhaxtc54m1Tvdehqui9iVhQvpNt3zR8KMpp3meu0Hiih00zMeDV4eW"
 );
 const { validationResult } = require("express-validator");
 
