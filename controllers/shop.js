@@ -347,7 +347,7 @@ exports.getInvoice = (req, res, next) => {
               "\n"
           );
       });
-      pdfDoc.text("--------------------------------------------");
+      pdfDoc.fontSize(26).text("--------------------------------------------");
       pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
       pdfDoc.end();
     })
