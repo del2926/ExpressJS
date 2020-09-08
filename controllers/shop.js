@@ -98,7 +98,7 @@ exports.postIndex = (req, res, next) => {
     });
   }
 
-  const imageUrl = image;
+  const imageUrl = image.path;
 
   const match = new Match({
     imageUrl: imageUrl,
