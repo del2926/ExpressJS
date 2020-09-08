@@ -170,7 +170,7 @@ exports.getProducts = (req, res, next) => {
       console.log(products);
       res.render("admin/products", {
         prods: products,
-        pageTitle: "Admin Products",
+        pageTitle: "Your Products",
         path: "/admin/products",
       });
     })
